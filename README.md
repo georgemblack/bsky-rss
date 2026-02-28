@@ -1,2 +1,3 @@
 # bsky-rss
-Create beautiful Atom/JSON feeds from Bluesky profiles
+
+Generate Atom and JSON feeds from Bluesky profiles.

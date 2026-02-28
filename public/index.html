@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Bluesky RSS</title>
+		<style>
+			body {
+				font-family: system-ui, sans-serif;
+				max-width: 600px;
+				margin: 60px auto;
+				padding: 0 20px;
+			}
+			h1 {
+				margin-bottom: 4px;
+			}
+			p {
+				color: #555;
+			}
+			form {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 8px;
+				margin-top: 24px;
+			}
+			input[type="text"] {
+				flex: 1 1 100%;
+				padding: 8px 12px;
+				font-size: 16px;
+				border: 1px solid #ccc;
+				border-radius: 4px;
+			}
+			form label {
+				font-size: 14px;
+				color: #555;
+			}
+			button {
+				padding: 8px 16px;
+				font-size: 16px;
+				cursor: pointer;
+				border: 1px solid #ccc;
+				border-radius: 4px;
+				background: #f5f5f5;
+			}
+			#result {
+				margin-top: 24px;
+			}
+			.feed-row {
+				display: flex;
+				align-items: center;
+				gap: 8px;
+				margin: 8px 0;
+			}
+			.feed-row code {
+				flex: 1;
+				padding: 6px 8px;
+				background: #f5f5f5;
+				border: 1px solid #e0e0e0;
+				border-radius: 4px;
+				font-size: 13px;
+				word-break: break-all;
+			}
+			.feed-row button {
+				flex-shrink: 0;
+				padding: 6px 12px;
+				font-size: 13px;
+			}
+			#error {
+				color: red;
+				margin-top: 16px;
+			}
+		</style>
+	</head>
+	<body>
+		<h1>Bluesky RSS</h1>
+		<p>Generate Atom and JSON feeds from Bluesky profiles.</p>
+
+		<form id="form">
+			<input
+				type="text"
+				id="handle"
+				placeholder="handle (e.g. george.black)"
+				required
+			/>
+			<label><input type="checkbox" id="includeReposts" /> Include reposts</label>
+			<label><input type="checkbox" id="includeReplies" /> Include replies</label>
+			<button type="submit">Get Feeds</button>
+		</form>
+
+		<div id="error"></div>
+		<div id="result"></div>
+
+		<script>
+			function copyUrl(url, btn) {
+				navigator.clipboard.writeText(url).then(() => {
+					btn.textContent = "Copied!";
+					setTimeout(() => { btn.textContent = "Copy"; }, 1500);
+				});
+			}
+
+			const form = document.getElementById("form");
+			const handleInput = document.getElementById("handle");
+			const resultDiv = document.getElementById("result");
+			const errorDiv = document.getElementById("error");
+
+			form.addEventListener("submit", async (e) => {
+				e.preventDefault();
+				resultDiv.innerHTML = "";
+				errorDiv.textContent = "";
+
+				const handle = handleInput.value.trim().replace(/^@/, "");
+				if (!handle) return;
+
+				try {
+					const res = await fetch(
+						`https://public.api.bsky.app/xrpc/com.atproto.identity.resolveHandle?handle=${encodeURIComponent(handle)}`
+					);
+					if (!res.ok) {
+						throw new Error("Could not resolve handle. Check that it's correct.");
+					}
+					const data = await res.json();
+					const did = data.did;
+					const base = window.location.origin;
+					const params = new URLSearchParams();
+					if (document.getElementById("includeReposts").checked) {
+						params.set("includeReposts", "true");
+					}
+					if (document.getElementById("includeReplies").checked) {
+						params.set("includeReplies", "true");
+					}
+					const qs = params.toString() ? `?${params.toString()}` : "";
+
+					const atomUrl = `${base}/${did}.xml${qs}`;
+					const jsonUrl = `${base}/${did}.json${qs}`;
+
+					resultDiv.innerHTML = `
+						<p><strong>Feeds for ${handle}:</strong></p>
+						<div class="feed-row">
+							<code>${atomUrl}</code>
+							<button onclick="copyUrl('${atomUrl}', this)">Copy</button>
+						</div>
+						<div class="feed-row">
+							<code>${jsonUrl}</code>
+							<button onclick="copyUrl('${jsonUrl}', this)">Copy</button>
+						</div>
+					`;
+				} catch (err) {
+					errorDiv.textContent = err.message;
+				}
+			});
+		</script>
+	</body>
+</html>
