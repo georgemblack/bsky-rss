@@ -29,7 +29,7 @@ export function generateAtomFeed(
       const entryAuthorProfileUrl = `https://bsky.app/profile/${post.author.handle}`;
 
       return `  <entry>
-    <id>${escapeXml(post.uri)}</id>
+    <id>${escapeXml(url)}</id>
     <title></title>
     <link href="${escapeXml(url)}" rel="alternate" />
     <author>

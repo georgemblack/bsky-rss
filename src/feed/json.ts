@@ -40,12 +40,15 @@ export function generateJsonFeed(
     home_page_url: profileUrl,
     feed_url: feedUrl,
     ...(author.avatar ? { icon: author.avatar } : {}),
-    items: posts.map((post) => ({
-      id: post.uri,
-      url: postUrl(post.author.handle, post.uri),
-      content_html: buildContentHtml(post, author, escapeHtml),
-      date_published: post.createdAt,
-      date_modified: post.updatedAt,
-    })),
+    items: posts.map((post) => {
+      const url = postUrl(post.author.handle, post.uri);
+      return {
+        id: url,
+        url,
+        content_html: buildContentHtml(post, author, escapeHtml),
+        date_published: post.createdAt,
+        date_modified: post.updatedAt,
+      };
+    }),
   };
 }
