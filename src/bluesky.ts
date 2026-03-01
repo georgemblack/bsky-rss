@@ -233,18 +233,14 @@ export async function fetchAuthorFeed(
 
   const data = (await res.json()) as AuthorFeedResponse;
 
-  const filtered = data.feed
+  const mapped = data.feed
     .filter((item) => includeReposts || item.post.author.did === did)
     .map((item) => {
       const reply = item.post.record.reply;
-      const parentUri = reply?.parent.uri;
-      // Only set replyParentUri for replies to other authors
-      const parentDid = parentUri?.split("/")[2];
-      const isReplyToOther = parentDid && parentDid !== item.post.author.did;
       return {
         uri: item.post.uri,
-        rootUri: reply?.root.uri ?? item.post.uri,
-        replyParentUri: isReplyToOther ? parentUri : undefined,
+        parentUri: reply?.parent.uri,
+        threadRootUri: reply?.root.uri ?? item.post.uri,
         record: {
           text: item.post.record.text,
           createdAt: item.post.record.createdAt,
@@ -256,6 +252,44 @@ export async function fetchAuthorFeed(
         author: item.post.author,
       };
     });
+
+  // Build a set of posts that belong to a continuous self-thread
+  // (every post in the chain from root to this post is by the same author).
+  // Process oldest-first so parents are resolved before children.
+  const sorted = [...mapped].sort((a, b) =>
+    a.record.createdAt.localeCompare(b.record.createdAt)
+  );
+  const selfThreadUris = new Set<string>();
+  for (const post of sorted) {
+    if (!post.parentUri) {
+      // Root post — always starts a self-thread
+      selfThreadUris.add(post.uri);
+    } else {
+      const parentDid = post.parentUri.split("/")[2];
+      const rootDid = post.threadRootUri.split("/")[2];
+      if (
+        parentDid === post.author.did &&
+        rootDid === post.author.did &&
+        selfThreadUris.has(post.parentUri)
+      ) {
+        selfThreadUris.add(post.uri);
+      }
+    }
+  }
+
+  const filtered = mapped.map((post) => {
+    const isSelfThread = selfThreadUris.has(post.uri);
+    return {
+      uri: post.uri,
+      rootUri: isSelfThread ? post.threadRootUri : post.uri,
+      replyParentUri: !isSelfThread && post.parentUri ? post.parentUri : undefined,
+      record: post.record,
+      images: post.images,
+      external: post.external,
+      quote: post.quote,
+      author: post.author,
+    };
+  });
 
   const posts = collapseThreads(filtered);
   const author = posts.length > 0 ? posts[0].author : null;
