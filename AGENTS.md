@@ -16,7 +16,11 @@ When testing feed output locally, add `?noCache=true` to bypass the Cache API.
 
 ## Pull Requests
 
-When making a pull request, prefix the title with: "AI:", and ensure there is a note in the PR description clarifying that the PR is AI generated.
+When making a pull request:
+
+* Prefix the branch name with "ai/"
+* Prefix the title with "AI:"
+* Note in the description that it is AI generated
 
 ## Bluesky API
 
