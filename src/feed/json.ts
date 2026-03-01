@@ -1,5 +1,5 @@
-import type { Author, Post } from "../bluesky";
-import { buildContentHtml, postUrl } from "./content";
+import { atUriToPostUrl, type Author, type Post } from "../bluesky";
+import { buildContentHtml } from "./content";
 
 interface JsonFeedItem {
   id: string;
@@ -41,7 +41,7 @@ export function generateJsonFeed(
     feed_url: feedUrl,
     ...(author.avatar ? { icon: author.avatar } : {}),
     items: posts.map((post) => {
-      const url = postUrl(post.author.handle, post.uri);
+      const url = atUriToPostUrl(post.uri, post.author.handle);
       return {
         id: url,
         url,
