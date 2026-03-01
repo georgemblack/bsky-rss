@@ -123,6 +123,9 @@ interface AuthorFeedResponse {
         record: { text: string };
       };
     };
+    reason?: {
+      by: Author;
+    };
   }>;
 }
 
@@ -300,6 +303,10 @@ export async function fetchAuthorFeed(
   }
 
   const data = (await res.json()) as AuthorFeedResponse;
+  const author =
+    data.feed.find((item) => item.post.author.did === did)?.post.author ??
+    data.feed.find((item) => item.reason?.by.did === did)?.reason?.by ??
+    null;
 
   const mapped = data.feed
     .filter((item) => includeReposts || item.post.author.did === did)
@@ -369,7 +376,6 @@ export async function fetchAuthorFeed(
   });
 
   const posts = collapseThreads(filtered).slice(0, MAX_FEED_POSTS);
-  const author = posts.length > 0 ? posts[0].author : null;
 
   return { posts, author };
 }
