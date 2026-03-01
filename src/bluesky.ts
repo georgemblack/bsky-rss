@@ -105,6 +105,10 @@ interface AuthorFeedResponse {
         };
       };
     };
+    reason?: {
+      $type: string;
+      by: Author;
+    };
     reply?: {
       parent: {
         uri: string;
@@ -271,6 +275,10 @@ export async function fetchAuthorFeed(
   }
 
   const data = (await res.json()) as AuthorFeedResponse;
+  const author =
+    data.feed.find((item) => item.reason?.by.did === did)?.reason?.by ??
+    data.feed.find((item) => item.post.author.did === did)?.post.author ??
+    null;
 
   const mapped = data.feed
     .filter((item) => includeReposts || item.post.author.did === did)
@@ -340,7 +348,6 @@ export async function fetchAuthorFeed(
   });
 
   const posts = collapseThreads(filtered);
-  const author = posts.length > 0 ? posts[0].author : null;
 
   return { posts, author };
 }
