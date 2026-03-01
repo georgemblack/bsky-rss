@@ -22,7 +22,7 @@
       <input
         type="text"
         id="handle"
-        placeholder="handle (e.g. george.black)"
+        placeholder="Bluesky handle, DID, or profile URL"
         required
       />
       <label
@@ -57,20 +57,33 @@
         resultDiv.innerHTML = "";
         errorDiv.textContent = "";
 
-        const handle = handleInput.value.trim().replace(/^@/, "");
-        if (!handle) return;
+        let input = handleInput.value.trim().replace(/^@/, "");
+        if (!input) return;
+
+        // Extract handle or DID from a Bluesky profile URL
+        const profileUrlMatch = input.match(
+          /^https?:\/\/bsky\.app\/profile\/([^/?#]+)/,
+        );
+        if (profileUrlMatch) {
+          input = profileUrlMatch[1];
+        }
 
         try {
-          const res = await fetch(
-            `https://public.api.bsky.app/xrpc/com.atproto.identity.resolveHandle?handle=${encodeURIComponent(handle)}`,
-          );
-          if (!res.ok) {
-            throw new Error(
-              "Could not resolve handle. Check that it's correct.",
+          let did;
+          if (input.startsWith("did:")) {
+            did = input;
+          } else {
+            const res = await fetch(
+              `https://public.api.bsky.app/xrpc/com.atproto.identity.resolveHandle?handle=${encodeURIComponent(input)}`,
             );
+            if (!res.ok) {
+              throw new Error(
+                "Could not resolve handle. Check that it's correct.",
+              );
+            }
+            const data = await res.json();
+            did = data.did;
           }
-          const data = await res.json();
-          const did = data.did;
           const base = window.location.origin;
           const params = new URLSearchParams();
           if (document.getElementById("includeReposts").checked) {
@@ -85,7 +98,7 @@
           const jsonUrl = `${base}/${did}.json${qs}`;
 
           resultDiv.innerHTML = `
-						<p><strong>Feeds for ${handle}:</strong></p>
+						<p><strong>Feeds for ${input}:</strong></p>
 						<div class="feed-row">
 							<code>${atomUrl}</code>
 							<button onclick="copyUrl('${atomUrl}', this)">Copy</button>

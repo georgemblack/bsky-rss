@@ -22,21 +22,47 @@
   --link-color: #2b589f;
   --link-hover-color: color-mix(in srgb, var(--link-color) 85%, black);
   --body-text-color: #2d2d2d;
-  --faded-text-color-1: color-mix(in srgb, var(--body-text-color) 45%, var(--background-color));
-  --faded-text-color-2: color-mix(in srgb, var(--body-text-color) 80%, var(--background-color));
+  --faded-text-color-1: color-mix(
+    in srgb,
+    var(--body-text-color) 45%,
+    var(--background-color)
+  );
+  --faded-text-color-2: color-mix(
+    in srgb,
+    var(--body-text-color) 80%,
+    var(--background-color)
+  );
 
   /* Button colors */
-  --button-background: linear-gradient(rgba(85, 170, 255, 0.05), rgba(85, 170, 255, 0.1));
-  --button-background-active: linear-gradient(rgba(85, 170, 255, 0.1), rgba(85, 170, 255, 0.2));
+  --button-background: linear-gradient(
+    rgba(85, 170, 255, 0.05),
+    rgba(85, 170, 255, 0.1)
+  );
+  --button-background-active: linear-gradient(
+    rgba(85, 170, 255, 0.1),
+    rgba(85, 170, 255, 0.2)
+  );
   --help-icon-color: rgba(0, 0, 0, 0.05);
 
   /* Toggle colors */
-  --toggle-background-color: color-mix(in srgb, var(--background-color) 75%, white);
-  --toggle-selected-color: color-mix(in srgb, var(--header-accent-color) 15%, var(--toggle-background-color));
+  --toggle-background-color: color-mix(
+    in srgb,
+    var(--background-color) 75%,
+    white
+  );
+  --toggle-selected-color: color-mix(
+    in srgb,
+    var(--header-accent-color) 15%,
+    var(--toggle-background-color)
+  );
 
   /* Cards */
   --card-background-color: #f4f0eb;
-  --card-background: linear-gradient(135deg, transparent, rgba(85, 170, 255, 0.05));
+  --card-background: linear-gradient(
+    135deg,
+    transparent,
+    rgba(85, 170, 255, 0.05)
+  );
   --card-box-shadow: 0px 0px 50px -25px rgba(0, 0, 0, 0.15);
 }
 
@@ -67,7 +93,11 @@ h1 {
 
 h1 .accent {
   color: var(--header-accent-color);
-  background: linear-gradient(315deg, var(--header-accent-color), var(--header-accent-color-secondary));
+  background: linear-gradient(
+    315deg,
+    var(--header-accent-color),
+    var(--header-accent-color-secondary)
+  );
   background-clip: text;
   -webkit-text-fill-color: transparent;
 }
