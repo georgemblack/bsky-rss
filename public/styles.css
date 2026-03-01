@@ -1,16 +1,79 @@
+/*--------------------------------*/
+/*         Variables              */
+/*--------------------------------*/
+:root {
+  /* Layout */
+  --body-padding: 2rem;
+
+  /* Fonts */
+  --serif-font: "Crete Round", serif;
+  --sans-serif-font: system-ui;
+  --font-size-small: 0.85em;
+  --font-weight-normal: 400;
+
+  /* General purpose colors */
+  --background-color: #f0ece9;
+  --line-separator-color: rgba(0, 0, 0, 0.05);
+
+  /* Text colors */
+  --header-accent-color: #f26522;
+  --header-accent-color-secondary: #fb7c41;
+  --header-accent-color-transparent: rgba(66, 134, 244, 0.2);
+  --link-color: #2b589f;
+  --link-hover-color: color-mix(in srgb, var(--link-color) 85%, black);
+  --body-text-color: #2d2d2d;
+  --faded-text-color-1: color-mix(in srgb, var(--body-text-color) 45%, var(--background-color));
+  --faded-text-color-2: color-mix(in srgb, var(--body-text-color) 80%, var(--background-color));
+
+  /* Button colors */
+  --button-background: linear-gradient(rgba(85, 170, 255, 0.05), rgba(85, 170, 255, 0.1));
+  --button-background-active: linear-gradient(rgba(85, 170, 255, 0.1), rgba(85, 170, 255, 0.2));
+  --help-icon-color: rgba(0, 0, 0, 0.05);
+
+  /* Toggle colors */
+  --toggle-background-color: color-mix(in srgb, var(--background-color) 75%, white);
+  --toggle-selected-color: color-mix(in srgb, var(--header-accent-color) 15%, var(--toggle-background-color));
+
+  /* Cards */
+  --card-background-color: #f4f0eb;
+  --card-background: linear-gradient(135deg, transparent, rgba(85, 170, 255, 0.05));
+  --card-box-shadow: 0px 0px 50px -25px rgba(0, 0, 0, 0.15);
+}
+
+/*--------------------------------------*/
+/*         Primary elements             */
+/*--------------------------------------*/
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
 body {
-  font-family: system-ui, sans-serif;
-  max-width: 600px;
-  margin: 60px auto;
-  padding: 0 20px;
+  margin: 1em auto;
+  padding: 0 var(--body-padding);
+  max-width: 56rem;
+  color: var(--body-text-color);
+  font-family: var(--sans-serif-font);
+  font-weight: var(--font-weight-normal);
+  font-style: normal;
+  background-color: var(--background-color);
 }
 
 h1 {
-  margin-bottom: 4px;
+  font-family: var(--serif-font);
+  letter-spacing: -1px;
+}
+
+h1 .accent {
+  color: var(--header-accent-color);
+  background: linear-gradient(315deg, var(--header-accent-color), var(--header-accent-color-secondary));
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 p {
-  color: #555;
+  color: var(--body-text-color);
 }
 
 form {
@@ -21,11 +84,11 @@ form {
 }
 
 input[type="text"] {
-  flex: 1 1 100%;
+  min-width: 32rem;
   padding: 8px 12px;
   font-size: 16px;
   border: 1px solid #ccc;
-  border-radius: 4px;
+  border-radius: 2em;
 }
 
 form label {
