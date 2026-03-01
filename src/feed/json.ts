@@ -54,7 +54,9 @@ function buildContentHtml(post: Post, feedAuthor: Author): string {
   if (post.external) {
     const e = post.external;
     html += "<blockquote>";
-    if (e.thumb) html += `<figure><img src="${escapeHtml(e.thumb)}"></figure>`;
+    if (e.thumb) {
+      html += `<figure><img src="${escapeHtml(e.thumb)}" alt="${escapeHtml(e.thumbAlt)}"></figure>`;
+    }
     html += `<a href="${escapeHtml(e.uri)}">${escapeHtml(e.title)}</a>`;
     if (e.description) html += `<p>${escapeHtml(e.description)}</p>`;
     html += "</blockquote>";

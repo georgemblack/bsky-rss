@@ -37,6 +37,7 @@ export interface ExternalLink {
   title: string;
   description: string;
   thumb?: string;
+  thumbAlt: string;
 }
 
 export interface PostPart {
@@ -79,6 +80,7 @@ interface EmbedView {
     title: string;
     description: string;
     thumb?: string;
+    alt?: string;
   };
   record?: {
     $type: string;
@@ -100,6 +102,14 @@ interface AuthorFeedResponse {
         text: string;
         createdAt: string;
         facets?: Facet[];
+        embed?: {
+          $type?: string;
+          external?: {
+            alt?: string;
+            title?: string;
+            description?: string;
+          };
+        };
         reply?: {
           root: { uri: string };
           parent: { uri: string };
@@ -156,7 +166,16 @@ function extractQuote(embed?: EmbedView): QuotePost | undefined {
   };
 }
 
-function extractExternal(embed?: EmbedView): ExternalLink | undefined {
+function extractExternal(
+  embed?: EmbedView,
+  recordEmbed?: {
+    external?: {
+      alt?: string;
+      title?: string;
+      description?: string;
+    };
+  },
+): ExternalLink | undefined {
   if (
     !embed ||
     embed.$type !== "app.bsky.embed.external#view" ||
@@ -164,11 +183,20 @@ function extractExternal(embed?: EmbedView): ExternalLink | undefined {
   ) {
     return undefined;
   }
+  const thumbAlt =
+    embed.external.alt ??
+    recordEmbed?.external?.alt ??
+    recordEmbed?.external?.description ??
+    embed.external.description ??
+    recordEmbed?.external?.title ??
+    embed.external.title ??
+    "";
   return {
     uri: embed.external.uri,
     title: embed.external.title,
     description: embed.external.description,
     thumb: embed.external.thumb,
+    thumbAlt,
   };
 }
 
@@ -294,7 +322,7 @@ export async function fetchAuthorFeed(
           facets: item.post.record.facets,
         },
         images: extractImages(item.post.embed),
-        external: extractExternal(item.post.embed),
+        external: extractExternal(item.post.embed, item.post.record.embed),
         quote: extractQuote(item.post.embed),
         author: item.post.author,
         replyParent,
