@@ -21,7 +21,7 @@ export function renderTextToHtml(text: string, facets?: Facet[]): string {
   const encoder = new TextEncoder();
   const bytes = encoder.encode(text);
   const sorted = [...facets].sort(
-    (a, b) => a.index.byteStart - b.index.byteStart
+    (a, b) => a.index.byteStart - b.index.byteStart,
   );
 
   const decoder = new TextDecoder();
@@ -35,7 +35,9 @@ export function renderTextToHtml(text: string, facets?: Facet[]): string {
     // Text before this facet
     html += escapeHtml(decoder.decode(bytes.slice(lastByte, byteStart)));
 
-    const facetText = escapeHtml(decoder.decode(bytes.slice(byteStart, byteEnd)));
+    const facetText = escapeHtml(
+      decoder.decode(bytes.slice(byteStart, byteEnd)),
+    );
     const feature = facet.features[0];
 
     if (feature.$type === "app.bsky.richtext.facet#link") {

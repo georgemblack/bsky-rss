@@ -1,16 +1,14 @@
 {
-	"$schema": "node_modules/wrangler/config-schema.json",
-	"name": "bsky-rss",
-	"main": "src/index.ts",
-	"compatibility_date": "2026-02-28",
-	"assets": {
-		"binding": "ASSETS",
-		"directory": "./public"
-	},
-	"observability": {
-		"enabled": true
-	},
-	"compatibility_flags": [
-		"nodejs_compat"
-	]
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "bsky-rss",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-02-28",
+  "assets": {
+    "binding": "ASSETS",
+    "directory": "./public",
+  },
+  "observability": {
+    "enabled": true,
+  },
+  "compatibility_flags": ["nodejs_compat"],
 }
