@@ -21,6 +21,7 @@ When making a pull request:
 - Prefix the branch name with "ai/"
 - Prefix the title with "AI:"
 - Note in the description that it is AI generated
+- Properly capitalize the description
 
 ## Bluesky API
 
