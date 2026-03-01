@@ -49,11 +49,6 @@ function buildContentHtml(post: Post, feedAuthor: Author): string {
   return html;
 }
 
-function truncate(text: string, maxLength: number): string {
-  if (text.length <= maxLength) return text;
-  return text.slice(0, maxLength) + "…";
-}
-
 export function generateAtomFeed(
   did: string,
   posts: Post[],
@@ -67,12 +62,11 @@ export function generateAtomFeed(
   const entries = posts
     .map((post) => {
       const url = postUrl(post.author.handle, post.uri);
-      const title = escapeXml(truncate(post.parts[0].text, 80));
       const contentHtml = buildContentHtml(post, author);
 
       return `  <entry>
     <id>${escapeXml(post.uri)}</id>
-    <title>${title}</title>
+    <title></title>
     <link href="${escapeXml(url)}" rel="alternate" />
     <published>${post.createdAt}</published>
     <updated>${post.updatedAt}</updated>
