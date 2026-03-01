@@ -36,9 +36,10 @@ function buildContentHtml(post: Post, feedAuthor: Author): string {
   if (post.author.did !== feedAuthor.did) {
     html += `<p>\u267B\uFE0F Reposted by ${escapeHtml(feedAuthor.displayName)}</p>`;
   }
-  if (post.replyParentUri && post.author.did === feedAuthor.did) {
-    const parentUrl = atUriToPostUrl(post.replyParentUri);
-    html += `<p><a href="${escapeHtml(parentUrl)}">\u21AA\uFE0F Replying to post</a></p>`;
+  if (post.replyParent && post.author.did === feedAuthor.did) {
+    const parentUrl = atUriToPostUrl(post.replyParent.uri, post.replyParent.author.handle);
+    html += `<p><a href="${escapeHtml(parentUrl)}">↩️ Replying to @${escapeHtml(post.replyParent.author.handle)}:</a></p>`;
+    html += `<blockquote><p>${escapeHtml(post.replyParent.text)}</p></blockquote>`;
   }
   const sections = post.parts.map((part) => renderTextToHtml(part.text, part.facets));
   html += sections.join("<hr>");

@@ -39,12 +39,18 @@ export interface QuotePost {
   text: string;
 }
 
+export interface ReplyParent {
+  uri: string;
+  author: Author;
+  text: string;
+}
+
 export interface Post {
   uri: string;
   parts: PostPart[];
   createdAt: string;
   updatedAt: string;
-  replyParentUri?: string;
+  replyParent?: ReplyParent;
   images: EmbedImage[];
   external?: ExternalLink;
   quote?: QuotePost;
@@ -87,6 +93,13 @@ interface AuthorFeedResponse {
           root: { uri: string };
           parent: { uri: string };
         };
+      };
+    };
+    reply?: {
+      parent: {
+        uri: string;
+        author: Author;
+        record: { text: string };
       };
     };
   }>;
@@ -148,7 +161,7 @@ function collapseThreads(
   posts: Array<{
     uri: string;
     rootUri: string;
-    replyParentUri?: string;
+    replyParent?: ReplyParent;
     record: { text: string; createdAt: string; facets?: Facet[] };
     images: EmbedImage[];
     external?: ExternalLink;
@@ -164,7 +177,7 @@ function collapseThreads(
       images: EmbedImage[];
       externals: ExternalLink[];
       quotes: QuotePost[];
-      replyParentUri?: string;
+      replyParent?: ReplyParent;
       createdAt: string;
       updatedAt: string;
       author: Author;
@@ -183,7 +196,7 @@ function collapseThreads(
       if (post.quote) existing.quotes.push(post.quote);
       if (post.record.createdAt < existing.createdAt) {
         existing.createdAt = post.record.createdAt;
-        existing.replyParentUri = post.replyParentUri;
+        existing.replyParent = post.replyParent;
       }
       if (post.record.createdAt > existing.updatedAt) {
         existing.updatedAt = post.record.createdAt;
@@ -196,7 +209,7 @@ function collapseThreads(
         images: [...post.images],
         externals: post.external ? [post.external] : [],
         quotes: post.quote ? [post.quote] : [],
-        replyParentUri: post.replyParentUri,
+        replyParent: post.replyParent,
         createdAt: post.record.createdAt,
         updatedAt: post.record.createdAt,
         author: post.author,
@@ -213,7 +226,7 @@ function collapseThreads(
       parts: group.parts,
       createdAt: group.createdAt,
       updatedAt: group.updatedAt,
-      replyParentUri: group.replyParentUri,
+      replyParent: group.replyParent,
       images: group.images,
       external: group.externals[0],
       quote: group.quotes[0],
@@ -244,6 +257,13 @@ export async function fetchAuthorFeed(
     .filter((item) => includeReposts || item.post.author.did === did)
     .map((item) => {
       const reply = item.post.record.reply;
+      const replyParent = item.reply?.parent
+        ? {
+            uri: item.reply.parent.uri,
+            author: item.reply.parent.author,
+            text: item.reply.parent.record.text,
+          }
+        : undefined;
       return {
         uri: item.post.uri,
         parentUri: reply?.parent.uri,
@@ -257,6 +277,7 @@ export async function fetchAuthorFeed(
         external: extractExternal(item.post.embed),
         quote: extractQuote(item.post.embed),
         author: item.post.author,
+        replyParent,
       };
     });
 
@@ -289,7 +310,7 @@ export async function fetchAuthorFeed(
     return {
       uri: post.uri,
       rootUri: isSelfThread ? post.threadRootUri : post.uri,
-      replyParentUri: !isSelfThread && post.parentUri ? post.parentUri : undefined,
+      replyParent: !isSelfThread && post.replyParent ? post.replyParent : undefined,
       record: post.record,
       images: post.images,
       external: post.external,
