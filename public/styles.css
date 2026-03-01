@@ -155,6 +155,7 @@ form .labels label {
 
   form .labels {
     margin-left: 0;
+    gap: 1rem;
   }
 }
 
