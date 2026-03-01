@@ -1,4 +1,5 @@
 const BSKY_API = "https://public.api.bsky.app/xrpc";
+const MAX_FEED_POSTS = 25;
 
 export class BlueskyApiError extends Error {
   readonly status: number;
@@ -339,7 +340,7 @@ export async function fetchAuthorFeed(
     };
   });
 
-  const posts = collapseThreads(filtered);
+  const posts = collapseThreads(filtered).slice(0, MAX_FEED_POSTS);
   const author = posts.length > 0 ? posts[0].author : null;
 
   return { posts, author };
