@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { fetchAuthorFeed, type FeedOptions } from "./bluesky";
+import { BlueskyApiError, fetchAuthorFeed, type FeedOptions } from "./bluesky";
 import { generateAtomFeed } from "./feed/atom";
 import { generateJsonFeed } from "./feed/json";
 
@@ -35,6 +35,13 @@ async function cachedResponse(
   return generate();
 }
 
+function mapAuthorFeedError(error: unknown): Response | null {
+  if (error instanceof BlueskyApiError && (error.status === 400 || error.status === 404)) {
+    return new Response("No posts found", { status: 404 });
+  }
+  return null;
+}
+
 app.get("/:path{.+\\.xml$}", async (c) => {
   const did = c.req.param("path").replace(/\.xml$/, "");
   if (!did.startsWith("did:")) {
@@ -43,14 +50,22 @@ app.get("/:path{.+\\.xml$}", async (c) => {
 
   return cachedResponse(c.req.raw, async () => {
     const options = parseFeedOptions(c);
-    const { posts, author } = await fetchAuthorFeed(did, options);
-    if (!author) {
-      return c.text("No posts found", 404);
-    }
+    try {
+      const { posts, author } = await fetchAuthorFeed(did, options);
+      if (!author) {
+        return c.text("No posts found", 404);
+      }
 
-    const feedUrl = new URL(c.req.url).toString();
-    const xml = generateAtomFeed(did, posts, author, feedUrl);
-    return c.body(xml, 200, { "Content-Type": "application/atom+xml" });
+      const feedUrl = new URL(c.req.url).toString();
+      const xml = generateAtomFeed(did, posts, author, feedUrl);
+      return c.body(xml, 200, { "Content-Type": "application/atom+xml" });
+    } catch (error) {
+      const mapped = mapAuthorFeedError(error);
+      if (mapped) {
+        return mapped;
+      }
+      throw error;
+    }
   });
 });
 
@@ -62,14 +77,22 @@ app.get("/:path{.+\\.json$}", async (c) => {
 
   return cachedResponse(c.req.raw, async () => {
     const options = parseFeedOptions(c);
-    const { posts, author } = await fetchAuthorFeed(did, options);
-    if (!author) {
-      return c.text("No posts found", 404);
-    }
+    try {
+      const { posts, author } = await fetchAuthorFeed(did, options);
+      if (!author) {
+        return c.text("No posts found", 404);
+      }
 
-    const feedUrl = new URL(c.req.url).toString();
-    const feed = generateJsonFeed(did, posts, author, feedUrl);
-    return c.json(feed, 200, { "Content-Type": "application/feed+json" });
+      const feedUrl = new URL(c.req.url).toString();
+      const feed = generateJsonFeed(did, posts, author, feedUrl);
+      return c.json(feed, 200, { "Content-Type": "application/feed+json" });
+    } catch (error) {
+      const mapped = mapAuthorFeedError(error);
+      if (mapped) {
+        return mapped;
+      }
+      throw error;
+    }
   });
 });
 

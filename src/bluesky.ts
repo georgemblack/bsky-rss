@@ -1,5 +1,15 @@
 const BSKY_API = "https://public.api.bsky.app/xrpc";
 
+export class BlueskyApiError extends Error {
+  readonly status: number;
+
+  constructor(status: number) {
+    super(`Bluesky API error: ${status}`);
+    this.name = "BlueskyApiError";
+    this.status = status;
+  }
+}
+
 export interface Author {
   did: string;
   handle: string;
@@ -248,7 +258,7 @@ export async function fetchAuthorFeed(
   const res = await fetch(url);
 
   if (!res.ok) {
-    throw new Error(`Bluesky API error: ${res.status}`);
+    throw new BlueskyApiError(res.status);
   }
 
   const data = (await res.json()) as AuthorFeedResponse;
