@@ -40,6 +40,12 @@ export interface ExternalLink {
   thumbAlt: string;
 }
 
+export interface EmbedVideo {
+  playlist: string;
+  thumbnail?: string;
+  alt: string;
+}
+
 export interface PostPart {
   text: string;
   facets?: Facet[];
@@ -65,6 +71,7 @@ export interface Post {
   replyParent?: ReplyParent;
   images: EmbedImage[];
   external?: ExternalLink;
+  video?: EmbedVideo;
   quote?: QuotePost;
   author: Author;
 }
@@ -89,7 +96,19 @@ interface EmbedView {
     value: {
       text: string;
     };
+    record?: {
+      $type: string;
+      uri: string;
+      author: Author;
+      value: {
+        text: string;
+      };
+    };
   };
+  media?: EmbedView;
+  playlist?: string;
+  thumbnail?: string;
+  alt?: string;
 }
 
 interface AuthorFeedResponse {
@@ -147,15 +166,38 @@ export interface FeedOptions {
  * uses the root's URI and earliest createdAt, with text concatenated.
  */
 function extractImages(embed?: EmbedView): EmbedImage[] {
-  if (!embed || embed.$type !== "app.bsky.embed.images#view" || !embed.images) {
+  if (!embed) {
+    return [];
+  }
+  if (embed.$type === "app.bsky.embed.recordWithMedia#view") {
+    return extractImages(embed.media);
+  }
+  if (embed.$type !== "app.bsky.embed.images#view" || !embed.images) {
     return [];
   }
   return embed.images.map((img) => ({ url: img.fullsize, alt: img.alt }));
 }
 
 function extractQuote(embed?: EmbedView): QuotePost | undefined {
+  if (!embed) {
+    return undefined;
+  }
+  if (embed.$type === "app.bsky.embed.recordWithMedia#view") {
+    const nested = embed.record?.record;
+    if (
+      nested &&
+      nested.$type === "app.bsky.embed.record#viewRecord" &&
+      nested.value
+    ) {
+      return {
+        uri: nested.uri,
+        author: nested.author,
+        text: nested.value.text,
+      };
+    }
+    return extractQuote(embed.record);
+  }
   if (
-    !embed ||
     embed.$type !== "app.bsky.embed.record#view" ||
     !embed.record ||
     embed.record.$type !== "app.bsky.embed.record#viewRecord"
@@ -179,11 +221,13 @@ function extractExternal(
     };
   },
 ): ExternalLink | undefined {
-  if (
-    !embed ||
-    embed.$type !== "app.bsky.embed.external#view" ||
-    !embed.external
-  ) {
+  if (!embed) {
+    return undefined;
+  }
+  if (embed.$type === "app.bsky.embed.recordWithMedia#view") {
+    return extractExternal(embed.media, recordEmbed);
+  }
+  if (embed.$type !== "app.bsky.embed.external#view" || !embed.external) {
     return undefined;
   }
   const thumbAlt =
@@ -203,6 +247,23 @@ function extractExternal(
   };
 }
 
+function extractVideo(embed?: EmbedView): EmbedVideo | undefined {
+  if (!embed) {
+    return undefined;
+  }
+  if (embed.$type === "app.bsky.embed.recordWithMedia#view") {
+    return extractVideo(embed.media);
+  }
+  if (embed.$type !== "app.bsky.embed.video#view" || !embed.playlist) {
+    return undefined;
+  }
+  return {
+    playlist: embed.playlist,
+    thumbnail: embed.thumbnail,
+    alt: embed.alt ?? "Video thumbnail",
+  };
+}
+
 function collapseThreads(
   posts: Array<{
     uri: string;
@@ -211,6 +272,7 @@ function collapseThreads(
     record: { text: string; createdAt: string; facets?: Facet[] };
     images: EmbedImage[];
     external?: ExternalLink;
+    video?: EmbedVideo;
     quote?: QuotePost;
     author: Author;
   }>,
@@ -222,6 +284,7 @@ function collapseThreads(
       parts: PostPart[];
       images: EmbedImage[];
       externals: ExternalLink[];
+      videos: EmbedVideo[];
       quotes: QuotePost[];
       replyParent?: ReplyParent;
       createdAt: string;
@@ -242,6 +305,7 @@ function collapseThreads(
       existing.parts.push(part);
       existing.images.push(...post.images);
       if (post.external) existing.externals.push(post.external);
+      if (post.video) existing.videos.push(post.video);
       if (post.quote) existing.quotes.push(post.quote);
       if (post.record.createdAt < existing.createdAt) {
         existing.createdAt = post.record.createdAt;
@@ -257,6 +321,7 @@ function collapseThreads(
         parts: [part],
         images: [...post.images],
         externals: post.external ? [post.external] : [],
+        videos: post.video ? [post.video] : [],
         quotes: post.quote ? [post.quote] : [],
         replyParent: post.replyParent,
         createdAt: post.record.createdAt,
@@ -278,6 +343,7 @@ function collapseThreads(
       replyParent: group.replyParent,
       images: group.images,
       external: group.externals[0],
+      video: group.videos[0],
       quote: group.quotes[0],
       author: group.author,
     };
@@ -330,6 +396,7 @@ export async function fetchAuthorFeed(
         },
         images: extractImages(item.post.embed),
         external: extractExternal(item.post.embed, item.post.record.embed),
+        video: extractVideo(item.post.embed),
         quote: extractQuote(item.post.embed),
         author: item.post.author,
         replyParent,
@@ -370,6 +437,7 @@ export async function fetchAuthorFeed(
       record: post.record,
       images: post.images,
       external: post.external,
+      video: post.video,
       quote: post.quote,
       author: post.author,
     };
