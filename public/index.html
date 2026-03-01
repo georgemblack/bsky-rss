@@ -118,14 +118,20 @@
 
           resultDiv.innerHTML = `
 						<div class="feed">
-              <p>JSON feed (<a href="https://www.jsonfeed.org/2017/05/17/announcing-json-feed.html">what is a JSON feed?</a>):<p>
+							<p class="bold">JSON feed (<a href="https://www.jsonfeed.org/2017/05/17/announcing-json-feed.html">what is a JSON feed?</a>):</p>
 							<p class="url">${jsonUrl}</p>
-							<button onclick="copyUrl('${jsonUrl}', this)">Copy</button>
+							<div class="feed-actions">
+								<button class="small" onclick="copyUrl('${jsonUrl}', this)">Copy</button>
+								<button class="small" onclick="window.open('${jsonUrl}', '_blank')">Open</button>
+							</div>
 						</div>
 						<div class="feed">
-              <p>RSS (Atom) feed:<p>
+							<p class="bold">RSS (Atom) feed:</p>
 							<p class="url">${atomUrl}</p>
-							<button onclick="copyUrl('${atomUrl}', this)">Copy</button>
+							<div class="feed-actions">
+								<button class="small" onclick="copyUrl('${atomUrl}', this)">Copy</button>
+								<button class="small" onclick="window.open('${atomUrl}', '_blank')">Open</button>
+							</div>
 						</div>
 					`;
         } catch (err) {

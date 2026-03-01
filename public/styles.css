@@ -7,11 +7,16 @@
   --body-text-color: #2d2d2d;
   --header-accent-color: #f26522;
   --header-accent-color-secondary: #fb7c41;
+  --action-color: #d4551c;
+  --action-color-hover: #e8621f;
   --input-border-color: #ccc;
+  --url-background-color: #ebebeb;
   --white: white;
 }
 
-/* Primary elements */
+/* ==============================
+   Primary elements
+   ============================== */
 * {
   margin: 0;
   padding: 0;
@@ -35,9 +40,11 @@ h1 {
 
 h1 .accent {
   color: var(--header-accent-color);
-  background: linear-gradient(315deg,
-      var(--header-accent-color),
-      var(--header-accent-color-secondary));
+  background: linear-gradient(
+    315deg,
+    var(--header-accent-color),
+    var(--header-accent-color-secondary)
+  );
   background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -46,7 +53,23 @@ p {
   color: var(--body-text-color);
 }
 
-/* Form */
+a {
+  color: var(--action-color);
+  text-decoration: none;
+  transition: color 0.2s;
+
+  &:hover {
+    color: var(--action-color-hover);
+  }
+}
+
+.bold {
+  font-weight: bold;
+}
+
+/* ==============================
+   Form
+   ============================== */
 form {
   margin-top: 1.25rem;
 }
@@ -75,12 +98,12 @@ button {
   border: none;
   cursor: pointer;
   white-space: nowrap;
-  background-color: var(--header-accent-color);
+  background-color: var(--action-color);
   color: var(--white);
   transition: background-color 0.2s;
 
   &:hover {
-    background-color: var(--header-accent-color-secondary);
+    background-color: var(--action-color-hover);
   }
 }
 
@@ -98,7 +121,9 @@ form .labels label {
   cursor: pointer;
 }
 
-/* Toggle switch */
+/* ==============================
+   Toggle switch
+   ============================== */
 .toggle {
   position: relative;
   display: inline-block;
@@ -134,11 +159,11 @@ form .labels label {
   transition: transform 0.2s;
 }
 
-.toggle input:checked+.slider {
-  background-color: var(--header-accent-color);
+.toggle input:checked + .slider {
+  background-color: var(--action-color);
 }
 
-.toggle input:checked+.slider::after {
+.toggle input:checked + .slider::after {
   transform: translateX(1em);
 }
 
@@ -159,7 +184,35 @@ form .labels label {
   }
 }
 
-/* Feed URLs */
+/* ==============================
+   Feed URLs
+   ============================== */
 #result {
   margin-top: 2rem;
+}
+
+.feed {
+  margin-bottom: 1.5rem;
+}
+
+.url {
+  font-family: ui-monospace, monospace;
+  font-size: 0.9em;
+  background-color: var(--url-background-color);
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  margin-top: 0.25rem;
+  word-break: break-all;
+}
+
+.feed-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+button.small {
+  font-size: 0.85em;
+  padding: 0.25rem 0.75rem;
 }
