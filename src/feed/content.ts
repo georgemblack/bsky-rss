@@ -21,7 +21,7 @@ export function buildContentHtml(
   const sections = post.parts.map((part) =>
     renderTextToHtml(part.text, part.facets),
   );
-  html += sections.join("<hr>");
+  html += sections.join("<p>⬇️</p>");
   for (const img of post.images) {
     html += `<figure><img src="${escape(img.url)}" alt="${escape(img.alt)}"></figure>`;
   }
