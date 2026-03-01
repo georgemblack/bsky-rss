@@ -6,6 +6,7 @@ interface JsonFeedItem {
   url: string;
   content_html: string;
   date_published: string;
+  date_modified: string;
 }
 
 interface JsonFeed {
@@ -82,6 +83,7 @@ export function generateJsonFeed(
       url: postUrl(post.author.handle, post.uri),
       content_html: buildContentHtml(post, author),
       date_published: post.createdAt,
+      date_modified: post.updatedAt,
     })),
   };
 }

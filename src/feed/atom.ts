@@ -61,7 +61,7 @@ export function generateAtomFeed(
 ): string {
   const profileUrl = `https://bsky.app/profile/${author.handle}`;
   const updated =
-    posts.length > 0 ? posts[0].createdAt : new Date().toISOString();
+    posts.length > 0 ? posts[0].updatedAt : new Date().toISOString();
 
   const entries = posts
     .map((post) => {
@@ -73,7 +73,8 @@ export function generateAtomFeed(
     <id>${escapeXml(post.uri)}</id>
     <title>${title}</title>
     <link href="${escapeXml(url)}" rel="alternate" />
-    <updated>${post.createdAt}</updated>
+    <published>${post.createdAt}</published>
+    <updated>${post.updatedAt}</updated>
     <content type="html">${escapeXml(contentHtml)}</content>
   </entry>`;
     })

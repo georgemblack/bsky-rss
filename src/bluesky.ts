@@ -43,6 +43,7 @@ export interface Post {
   uri: string;
   parts: PostPart[];
   createdAt: string;
+  updatedAt: string;
   replyParentUri?: string;
   images: EmbedImage[];
   external?: ExternalLink;
@@ -165,6 +166,7 @@ function collapseThreads(
       quotes: QuotePost[];
       replyParentUri?: string;
       createdAt: string;
+      updatedAt: string;
       author: Author;
     }
   >();
@@ -183,6 +185,9 @@ function collapseThreads(
         existing.createdAt = post.record.createdAt;
         existing.replyParentUri = post.replyParentUri;
       }
+      if (post.record.createdAt > existing.updatedAt) {
+        existing.updatedAt = post.record.createdAt;
+      }
     } else {
       order.push(key);
       groups.set(key, {
@@ -193,6 +198,7 @@ function collapseThreads(
         quotes: post.quote ? [post.quote] : [],
         replyParentUri: post.replyParentUri,
         createdAt: post.record.createdAt,
+        updatedAt: post.record.createdAt,
         author: post.author,
       });
     }
@@ -206,6 +212,7 @@ function collapseThreads(
       uri: group.uri,
       parts: group.parts,
       createdAt: group.createdAt,
+      updatedAt: group.updatedAt,
       replyParentUri: group.replyParentUri,
       images: group.images,
       external: group.externals[0],
