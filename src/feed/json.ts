@@ -37,11 +37,16 @@ function buildContentHtml(post: Post, feedAuthor: Author): string {
     html += `<p>\u267B\uFE0F Reposted by ${escapeHtml(feedAuthor.displayName)}</p>`;
   }
   if (post.replyParent && post.author.did === feedAuthor.did) {
-    const parentUrl = atUriToPostUrl(post.replyParent.uri, post.replyParent.author.handle);
+    const parentUrl = atUriToPostUrl(
+      post.replyParent.uri,
+      post.replyParent.author.handle,
+    );
     html += `<p><a href="${escapeHtml(parentUrl)}">↩️ Replying to @${escapeHtml(post.replyParent.author.handle)}:</a></p>`;
     html += `<blockquote><p>${escapeHtml(post.replyParent.text)}</p></blockquote>`;
   }
-  const sections = post.parts.map((part) => renderTextToHtml(part.text, part.facets));
+  const sections = post.parts.map((part) =>
+    renderTextToHtml(part.text, part.facets),
+  );
   html += sections.join("<hr>");
   for (const img of post.images) {
     html += `<figure><img src="${escapeHtml(img.url)}" alt="${escapeHtml(img.alt)}"></figure>`;
@@ -49,7 +54,7 @@ function buildContentHtml(post: Post, feedAuthor: Author): string {
   if (post.external) {
     const e = post.external;
     html += "<blockquote>";
-    if (e.thumb) html += `<img src="${escapeHtml(e.thumb)}">`;
+    if (e.thumb) html += `<figure><img src="${escapeHtml(e.thumb)}"></figure>`;
     html += `<a href="${escapeHtml(e.uri)}">${escapeHtml(e.title)}</a>`;
     if (e.description) html += `<p>${escapeHtml(e.description)}</p>`;
     html += "</blockquote>";
@@ -69,7 +74,7 @@ export function generateJsonFeed(
   did: string,
   posts: Post[],
   author: Author,
-  feedUrl: string
+  feedUrl: string,
 ): JsonFeed {
   const profileUrl = `https://bsky.app/profile/${author.handle}`;
 

@@ -21,11 +21,16 @@ function buildContentHtml(post: Post, feedAuthor: Author): string {
     html += `<p>\u267B\uFE0F Reposted by ${escapeXml(feedAuthor.displayName)}</p>`;
   }
   if (post.replyParent && post.author.did === feedAuthor.did) {
-    const parentUrl = atUriToPostUrl(post.replyParent.uri, post.replyParent.author.handle);
+    const parentUrl = atUriToPostUrl(
+      post.replyParent.uri,
+      post.replyParent.author.handle,
+    );
     html += `<p><a href="${escapeXml(parentUrl)}">↩️ Replying to @${escapeXml(post.replyParent.author.handle)}:</a></p>`;
     html += `<blockquote><p>${escapeXml(post.replyParent.text)}</p></blockquote>`;
   }
-  const sections = post.parts.map((part) => renderTextToHtml(part.text, part.facets));
+  const sections = post.parts.map((part) =>
+    renderTextToHtml(part.text, part.facets),
+  );
   html += sections.join("<hr>");
   for (const img of post.images) {
     html += `<figure><img src="${escapeXml(img.url)}" alt="${escapeXml(img.alt)}"></figure>`;
@@ -33,7 +38,7 @@ function buildContentHtml(post: Post, feedAuthor: Author): string {
   if (post.external) {
     const e = post.external;
     html += "<blockquote>";
-    if (e.thumb) html += `<img src="${escapeXml(e.thumb)}">`;
+    if (e.thumb) html += `<figure><img src="${escapeXml(e.thumb)}"></figure>`;
     html += `<a href="${escapeXml(e.uri)}">${escapeXml(e.title)}</a>`;
     if (e.description) html += `<p>${escapeXml(e.description)}</p>`;
     html += "</blockquote>";
@@ -53,7 +58,7 @@ export function generateAtomFeed(
   did: string,
   posts: Post[],
   author: Author,
-  feedUrl: string
+  feedUrl: string,
 ): string {
   const profileUrl = `https://bsky.app/profile/${author.handle}`;
   const updated =
