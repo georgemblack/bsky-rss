@@ -1,6 +1,6 @@
 :root {
   --body-padding: 2rem;
-  --sans-serif-font: system-ui;
+  --font-family: "Noto Serif", ui-serif;
   --font-weight-normal: 400;
   --font-weight-bold: 900;
   --background-color: #f7f7f7;
@@ -22,15 +22,13 @@ body {
   padding: 0 var(--body-padding);
   max-width: 56rem;
   color: var(--body-text-color);
-  font-family: var(--sans-serif-font);
+  font-family: var(--font-family);
   font-weight: var(--font-weight-normal);
   font-style: normal;
   background-color: var(--background-color);
 }
 
 h1 {
-  font-family: var(--sans-serif-font);
-  font-weight: var(--font-weight-bold);
   letter-spacing: -1px;
 }
 
@@ -56,11 +54,38 @@ form .bar {
   gap: 0.5em;
 }
 
+input[type="text"],
+button {
+  font-family: var(--font-family);
+  font-size: 1.15em;
+  padding: 0.5rem 1.25rem;
+  border-radius: 2em;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+input[type="text"] {
+  flex-grow: 1;
+  border: 1px solid var(--input-border-color);
+}
+
+button {
+  padding: 0.5em 1em;
+  border: none;
+  cursor: pointer;
+  background-color: var(--header-accent-color);
+  color: var(--white);
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: var(--header-accent-color-secondary);
+  }
+}
+
 form .labels {
   display: flex;
   gap: 1.5em;
-  margin: 0.75em 0 0 0;
-  font-size: 1.25em;
+  margin: 1rem 0 0 1.5rem;
+  font-size: 1.15em;
 }
 
 form .labels label {
@@ -112,30 +137,4 @@ form .labels label {
 
 .toggle input:checked+.slider::after {
   transform: translateX(1em);
-}
-
-input[type="text"],
-button {
-  font-size: 1.25em;
-  padding: 0.5em 1em;
-  border-radius: 2em;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-}
-
-input[type="text"] {
-  flex-grow: 1;
-  border: 1px solid var(--input-border-color);
-}
-
-button {
-  padding: 0.5em 1em;
-  border: none;
-  cursor: pointer;
-  background-color: var(--header-accent-color);
-  color: var(--white);
-  transition: background-color 0.2s;
-
-  &:hover {
-    background-color: var(--header-accent-color-secondary);
-  }
 }
