@@ -15,27 +15,43 @@
     />
   </head>
   <body>
-    <h1>Bsky<span class="accent">RSS</span></h1>
-    <p>Generate Atom and JSON feeds from Bluesky profiles.</p>
+    <header>
+      <h1>Bsky<span class="accent">RSS</span>.com</h1>
+      <p>Generate beautiful RSS and JSON feeds from Bluesky profiles</p>
+    </header>
 
-    <form id="form">
-      <input
-        type="text"
-        id="handle"
-        placeholder="Bluesky handle, DID, or profile URL"
-        required
-      />
-      <label
-        ><input type="checkbox" id="includeReposts" /> Include reposts</label
-      >
-      <label
-        ><input type="checkbox" id="includeReplies" /> Include replies</label
-      >
-      <button type="submit">Get Feeds</button>
-    </form>
+    <main>
+      <form id="form">
+        <div class="bar">
+          <input
+            type="text"
+            id="handle"
+            placeholder="Bluesky handle, DID, or profile URL"
+            required
+          />
+          <button type="submit">Get Feed</button>
+        </div>
+        <div class="labels">
+          <label>
+            <span class="toggle">
+              <input type="checkbox" id="includeReposts" />
+              <span class="slider"></span>
+            </span>
+            Include reposts
+          </label>
+          <label>
+            <span class="toggle">
+              <input type="checkbox" id="includeReplies" />
+              <span class="slider"></span>
+            </span>
+            Include replies
+          </label>
+        </div>
+      </form>
 
-    <div id="error"></div>
-    <div id="result"></div>
+      <div id="error"></div>
+      <div id="result"></div>
+    </main>
 
     <script>
       function copyUrl(url, btn) {
