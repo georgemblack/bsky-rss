@@ -40,6 +40,16 @@ export function buildContentHtml(
     if (e.description) html += `<p>${escape(e.description)}</p>`;
     html += "</blockquote>";
   }
+  if (post.video) {
+    const url = postUrl(post.author.handle, post.uri);
+    if (post.video.thumbnail) {
+      html += "<figure>";
+      html += `<a href="${escape(url)}"><img src="${escape(post.video.thumbnail)}" alt="${escape(post.video.alt)}"></a>`;
+      html += "</figure>";
+    } else {
+      html += `<p><a href="${escape(url)}">Watch video on Bluesky</a></p>`;
+    }
+  }
   if (post.quote) {
     const q = post.quote;
     const quoteUrl = atUriToPostUrl(q.uri, q.author.handle);
