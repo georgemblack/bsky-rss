@@ -7,6 +7,13 @@ interface JsonFeedItem {
   content_html: string;
   date_published: string;
   date_modified: string;
+  authors: JsonFeedAuthor[];
+}
+
+interface JsonFeedAuthor {
+  name: string;
+  url: string;
+  avatar?: string;
 }
 
 interface JsonFeed {
@@ -42,12 +49,20 @@ export function generateJsonFeed(
     ...(author.avatar ? { icon: author.avatar } : {}),
     items: posts.map((post) => {
       const url = postUrl(post.author.handle, post.uri);
+      const postAuthorUrl = `https://bsky.app/profile/${post.author.handle}`;
       return {
         id: url,
         url,
         content_html: buildContentHtml(post, author, escapeHtml),
         date_published: post.createdAt,
         date_modified: post.updatedAt,
+        authors: [
+          {
+            name: post.author.displayName,
+            url: postAuthorUrl,
+            ...(post.author.avatar ? { avatar: post.author.avatar } : {}),
+          },
+        ],
       };
     }),
   };
