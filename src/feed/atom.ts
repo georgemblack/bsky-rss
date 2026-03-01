@@ -1,5 +1,5 @@
-import { atUriToPostUrl, type Author, type Post } from "../bluesky";
-import { renderTextToHtml } from "../richtext";
+import type { Author, Post } from "../bluesky";
+import { buildContentHtml, postUrl } from "./content";
 
 function escapeXml(str: string): string {
   return str
@@ -8,52 +8,6 @@ function escapeXml(str: string): string {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&apos;");
-}
-
-function postUrl(handle: string, uri: string): string {
-  const rkey = uri.split("/").pop()!;
-  return `https://bsky.app/profile/${handle}/post/${rkey}`;
-}
-
-function buildContentHtml(post: Post, feedAuthor: Author): string {
-  let html = "";
-  if (post.author.did !== feedAuthor.did) {
-    html += `<p>\u267B\uFE0F Reposted by ${escapeXml(feedAuthor.displayName)}</p>`;
-  }
-  if (post.replyParent && post.author.did === feedAuthor.did) {
-    const parentUrl = atUriToPostUrl(
-      post.replyParent.uri,
-      post.replyParent.author.handle,
-    );
-    html += `<p><a href="${escapeXml(parentUrl)}">↩️ Replying to @${escapeXml(post.replyParent.author.handle)}:</a></p>`;
-    html += `<blockquote><p>${escapeXml(post.replyParent.text)}</p></blockquote>`;
-  }
-  const sections = post.parts.map((part) =>
-    renderTextToHtml(part.text, part.facets),
-  );
-  html += sections.join("<hr>");
-  for (const img of post.images) {
-    html += `<figure><img src="${escapeXml(img.url)}" alt="${escapeXml(img.alt)}"></figure>`;
-  }
-  if (post.external) {
-    const e = post.external;
-    html += "<blockquote>";
-    if (e.thumb) {
-      html += `<figure><img src="${escapeXml(e.thumb)}" alt="${escapeXml(e.thumbAlt)}"></figure>`;
-    }
-    html += `<a href="${escapeXml(e.uri)}">${escapeXml(e.title)}</a>`;
-    if (e.description) html += `<p>${escapeXml(e.description)}</p>`;
-    html += "</blockquote>";
-  }
-  if (post.quote) {
-    const q = post.quote;
-    const quoteUrl = atUriToPostUrl(q.uri, q.author.handle);
-    html += "<blockquote>";
-    html += `<a href="${escapeXml(quoteUrl)}">${escapeXml(q.author.displayName)} (@${escapeXml(q.author.handle)})</a>`;
-    html += `<p>${escapeXml(q.text)}</p>`;
-    html += "</blockquote>";
-  }
-  return html;
 }
 
 export function generateAtomFeed(
@@ -69,7 +23,7 @@ export function generateAtomFeed(
   const entries = posts
     .map((post) => {
       const url = postUrl(post.author.handle, post.uri);
-      const contentHtml = buildContentHtml(post, author);
+      const contentHtml = buildContentHtml(post, author, escapeXml);
 
       return `  <entry>
     <id>${escapeXml(post.uri)}</id>
