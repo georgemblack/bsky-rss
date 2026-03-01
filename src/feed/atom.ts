@@ -20,7 +20,7 @@ function buildContentHtml(post: Post, feedAuthor: Author): string {
   if (post.author.did !== feedAuthor.did) {
     html += `<p>\u267B\uFE0F Reposted by ${escapeXml(feedAuthor.displayName)}</p>`;
   }
-  if (post.replyParentUri) {
+  if (post.replyParentUri && post.author.did === feedAuthor.did) {
     const parentUrl = atUriToPostUrl(post.replyParentUri);
     html += `<p><a href="${escapeXml(parentUrl)}">\u21AA\uFE0F Replying to post</a></p>`;
   }
