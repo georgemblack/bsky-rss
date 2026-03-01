@@ -1,10 +1,18 @@
 # Overview
 
-Cloudflare Worker (Hono) that generates Atom and JSON feeds from Bluesky profiles. Users enter a handle on the landing page, which resolves to a DID client-side, producing feed URLs at `/{did}.xml` and `/{did}.json`.
+Cloudflare Worker (Hono) that generates Atom and [JSON feeds](https://www.jsonfeed.org) from Bluesky profiles, hosted at `https://bskyrss.com`. Posts are rendered as rich HTML content rather than plain text. Users enter a Bluesky handle on the landing page, which resolves to a DID and produces feed URLs.
 
-# Local Development
+# Development
 
-When testing feed output locally, add `?noCache=true` to the feed URL to bypass the Cache API. This ensures you're seeing fresh responses rather than stale cached ones.
+This project uses `pnpm`. After making changes, validate with:
+
+```
+pnpm run dryrun
+pnpm run typecheck
+pnpm run format
+```
+
+When testing feed output locally, add `?noCache=true` to bypass the Cache API.
 
 # Bluesky API
 
