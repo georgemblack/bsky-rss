@@ -1,11 +1,6 @@
 import { atUriToPostUrl, type Author, type Post } from "../bluesky";
 import { renderTextToHtml } from "../richtext";
 
-export function postUrl(handle: string, uri: string): string {
-  const rkey = uri.split("/").pop()!;
-  return `https://bsky.app/profile/${handle}/post/${rkey}`;
-}
-
 export function buildContentHtml(
   post: Post,
   feedAuthor: Author,
@@ -41,7 +36,7 @@ export function buildContentHtml(
     html += "</blockquote>";
   }
   if (post.video) {
-    const url = postUrl(post.author.handle, post.uri);
+    const url = atUriToPostUrl(post.uri, post.author.handle);
     if (post.video.thumbnail) {
       html += "<figure>";
       html += `<a href="${escape(url)}"><img src="${escape(post.video.thumbnail)}" alt="${escape(post.video.alt)}"></a>`;
