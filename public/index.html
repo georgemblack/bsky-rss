@@ -32,7 +32,7 @@
             spellcheck="false"
             required
           />
-          <button type="submit">Get Feed</button>
+          <button type="submit">Get Feeds</button>
         </div>
         <div class="labels">
           <label>
@@ -117,14 +117,15 @@
           const jsonUrl = `${base}/${did}.json${qs}`;
 
           resultDiv.innerHTML = `
-						<p><strong>Feeds for ${input}:</strong></p>
-						<div class="feed-row">
-							<code>${atomUrl}</code>
-							<button onclick="copyUrl('${atomUrl}', this)">Copy</button>
-						</div>
-						<div class="feed-row">
-							<code>${jsonUrl}</code>
+						<div class="feed">
+              <p>JSON feed (<a href="https://www.jsonfeed.org/2017/05/17/announcing-json-feed.html">what is a JSON feed?</a>):<p>
+							<p class="url">${jsonUrl}</p>
 							<button onclick="copyUrl('${jsonUrl}', this)">Copy</button>
+						</div>
+						<div class="feed">
+              <p>RSS (Atom) feed:<p>
+							<p class="url">${atomUrl}</p>
+							<button onclick="copyUrl('${atomUrl}', this)">Copy</button>
 						</div>
 					`;
         } catch (err) {
