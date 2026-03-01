@@ -7,7 +7,9 @@ const CACHE_TTL = 600; // 10 minutes
 
 const app = new Hono<{ Bindings: CloudflareBindings }>();
 
-function parseFeedOptions(c: { req: { query: (key: string) => string | undefined } }): FeedOptions {
+function parseFeedOptions(c: {
+  req: { query: (key: string) => string | undefined };
+}): FeedOptions {
   return {
     includeReposts: c.req.query("includeReposts") === "true",
     includeReplies: c.req.query("includeReplies") === "true",
@@ -16,7 +18,7 @@ function parseFeedOptions(c: { req: { query: (key: string) => string | undefined
 
 async function cachedResponse(
   request: Request,
-  generate: () => Promise<Response>
+  generate: () => Promise<Response>,
 ): Promise<Response> {
   const url = new URL(request.url);
   const noCache = url.searchParams.get("noCache") === "true";
@@ -36,7 +38,10 @@ async function cachedResponse(
 }
 
 function mapAuthorFeedError(error: unknown): Response | null {
-  if (error instanceof BlueskyApiError && (error.status === 400 || error.status === 404)) {
+  if (
+    error instanceof BlueskyApiError &&
+    (error.status === 400 || error.status === 404)
+  ) {
     return new Response("No posts found", { status: 404 });
   }
   return null;

@@ -37,8 +37,11 @@ function buildContentHtml(post: Post, feedAuthor: Author): string {
   }
   if (post.external) {
     const e = post.external;
+    const thumbAlt = e.alt || e.title || "";
     html += "<blockquote>";
-    if (e.thumb) html += `<figure><img src="${escapeXml(e.thumb)}"></figure>`;
+    if (e.thumb) {
+      html += `<figure><img src="${escapeXml(e.thumb)}" alt="${escapeXml(thumbAlt)}"></figure>`;
+    }
     html += `<a href="${escapeXml(e.uri)}">${escapeXml(e.title)}</a>`;
     if (e.description) html += `<p>${escapeXml(e.description)}</p>`;
     html += "</blockquote>";

@@ -36,6 +36,7 @@ export interface ExternalLink {
   title: string;
   description: string;
   thumb?: string;
+  alt?: string;
 }
 
 export interface PostPart {
@@ -78,6 +79,7 @@ interface EmbedView {
     title: string;
     description: string;
     thumb?: string;
+    alt?: string;
   };
   record?: {
     $type: string;
@@ -156,7 +158,11 @@ function extractQuote(embed?: EmbedView): QuotePost | undefined {
 }
 
 function extractExternal(embed?: EmbedView): ExternalLink | undefined {
-  if (!embed || embed.$type !== "app.bsky.embed.external#view" || !embed.external) {
+  if (
+    !embed ||
+    embed.$type !== "app.bsky.embed.external#view" ||
+    !embed.external
+  ) {
     return undefined;
   }
   return {
@@ -164,6 +170,7 @@ function extractExternal(embed?: EmbedView): ExternalLink | undefined {
     title: embed.external.title,
     description: embed.external.description,
     thumb: embed.external.thumb,
+    alt: embed.external.alt,
   };
 }
 
@@ -177,7 +184,7 @@ function collapseThreads(
     external?: ExternalLink;
     quote?: QuotePost;
     author: Author;
-  }>
+  }>,
 ): Post[] {
   const groups = new Map<
     string,
@@ -197,7 +204,10 @@ function collapseThreads(
 
   for (const post of posts) {
     const key = post.rootUri;
-    const part: PostPart = { text: post.record.text, facets: post.record.facets };
+    const part: PostPart = {
+      text: post.record.text,
+      facets: post.record.facets,
+    };
     const existing = groups.get(key);
     if (existing) {
       existing.parts.push(part);
@@ -247,13 +257,15 @@ function collapseThreads(
 
 export async function fetchAuthorFeed(
   did: string,
-  options: FeedOptions = {}
+  options: FeedOptions = {},
 ): Promise<{
   posts: Post[];
   author: Author | null;
 }> {
   const { includeReposts = false, includeReplies = false } = options;
-  const filter = includeReplies ? "posts_with_replies" : "posts_and_author_threads";
+  const filter = includeReplies
+    ? "posts_with_replies"
+    : "posts_and_author_threads";
   const url = `${BSKY_API}/app.bsky.feed.getAuthorFeed?actor=${encodeURIComponent(did)}&filter=${filter}`;
   const res = await fetch(url);
 
@@ -295,7 +307,7 @@ export async function fetchAuthorFeed(
   // (every post in the chain from root to this post is by the same author).
   // Process oldest-first so parents are resolved before children.
   const sorted = [...mapped].sort((a, b) =>
-    a.record.createdAt.localeCompare(b.record.createdAt)
+    a.record.createdAt.localeCompare(b.record.createdAt),
   );
   const selfThreadUris = new Set<string>();
   for (const post of sorted) {
@@ -320,7 +332,8 @@ export async function fetchAuthorFeed(
     return {
       uri: post.uri,
       rootUri: isSelfThread ? post.threadRootUri : post.uri,
-      replyParent: !isSelfThread && post.replyParent ? post.replyParent : undefined,
+      replyParent:
+        !isSelfThread && post.replyParent ? post.replyParent : undefined,
       record: post.record,
       images: post.images,
       external: post.external,

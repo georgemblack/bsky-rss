@@ -1,21 +1,21 @@
 {
-	"name": "bsky-rss",
-	"type": "module",
-	"scripts": {
-		"dev": "wrangler dev",
-		"deploy": "wrangler deploy",
-		"dryrun": "wrangler deploy --dry-run",
-		"typegen": "wrangler types --env-interface CloudflareBindings",
-		"typecheck": "tsc --noEmit",
-		"format": "prettier . --write"
-	},
-	"dependencies": {
-		"hono": "^4.12.3"
-	},
-	"devDependencies": {
-		"@types/node": "^25.3.3",
-		"prettier": "^3.8.1",
-		"typescript": "^5.9.3",
-		"wrangler": "^4.69.0"
-	}
+  "name": "bsky-rss",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "dryrun": "wrangler deploy --dry-run",
+    "typegen": "wrangler types --env-interface CloudflareBindings",
+    "typecheck": "tsc --noEmit",
+    "format": "prettier . --write"
+  },
+  "dependencies": {
+    "hono": "^4.12.3"
+  },
+  "devDependencies": {
+    "@types/node": "^25.3.3",
+    "prettier": "^3.8.1",
+    "typescript": "^5.9.3",
+    "wrangler": "^4.69.0"
+  }
 }
