@@ -43,7 +43,7 @@ export function generateJsonFeed(
 
   return {
     version: "https://jsonfeed.org/version/1.1",
-    title: `${author.displayName}'s Bluesky Posts`,
+    title: author.displayName || `@${author.handle}`,
     home_page_url: profileUrl,
     feed_url: feedUrl,
     ...(author.avatar ? { icon: author.avatar } : {}),

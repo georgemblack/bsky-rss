@@ -17,7 +17,7 @@ export function generateAtomFeed(
   feedUrl: string,
 ): string {
   const profileUrl = `https://bsky.app/profile/${author.handle}`;
-  const feedAuthorName = author.displayName || author.handle;
+  const feedAuthorName = author.displayName || `@${author.handle}`;
   const updated =
     posts.length > 0 ? posts[0].updatedAt : new Date().toISOString();
 
@@ -46,7 +46,7 @@ export function generateAtomFeed(
   return `<?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <id>${escapeXml(feedUrl)}</id>
-  <title>${escapeXml(feedAuthorName)}'s Bluesky Posts</title>
+  <title>${escapeXml(feedAuthorName)}</title>
   <author>
     <name>${escapeXml(feedAuthorName)}</name>
     <uri>${escapeXml(profileUrl)}</uri>
