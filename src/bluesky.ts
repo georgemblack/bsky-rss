@@ -378,13 +378,14 @@ export async function fetchAuthorFeed(
     .filter((item) => includeReposts || item.post.author.did === did)
     .map((item) => {
       const reply = item.post.record.reply;
-      const replyParent = item.reply?.parent
-        ? {
-            uri: item.reply.parent.uri,
-            author: item.reply.parent.author,
-            text: item.reply.parent.record.text,
-          }
-        : undefined;
+      const replyParent =
+        item.reply?.parent?.author && item.reply?.parent?.record
+          ? {
+              uri: item.reply.parent.uri,
+              author: item.reply.parent.author,
+              text: item.reply.parent.record.text,
+            }
+          : undefined;
       return {
         uri: item.post.uri,
         parentUri: reply?.parent.uri,
