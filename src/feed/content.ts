@@ -15,7 +15,7 @@ export function buildContentHtml(
       post.replyParent.uri,
       post.replyParent.author.handle,
     );
-    html += `<p><a href="${escape(parentUrl)}">↩️ Replying to @${escape(post.replyParent.author.handle)}:</a></p>`;
+    html += `<p><a href="${escape(parentUrl)}">↪️ Replying to @${escape(post.replyParent.author.handle)}:</a></p>`;
     html += `<blockquote><p>${escape(post.replyParent.text)}</p></blockquote>`;
   }
   const sections = post.parts.map((part) =>
