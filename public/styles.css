@@ -2,7 +2,6 @@
   --body-padding: 2rem;
   --font-family: "Noto Serif", ui-serif;
   --font-weight-normal: 400;
-  --font-weight-bold: 900;
   --background-color: #f7f7f7;
   --body-text-color: #2d2d2d;
   --header-accent-color: #f26522;
@@ -10,6 +9,12 @@
   --input-border-color: #ccc;
   --url-background-color: #ebebeb;
   --white: white;
+}
+
+@media (max-width: 640px) {
+  :root {
+    --body-padding: 1rem;
+  }
 }
 
 /* ==============================
@@ -22,14 +27,19 @@
 }
 
 body {
-  margin: 2rem auto;
+  margin: 3rem auto 6rem auto;
   padding: 0 var(--body-padding);
-  max-width: 56rem;
   color: var(--body-text-color);
   font-family: var(--font-family);
   font-weight: var(--font-weight-normal);
   font-style: normal;
   background-color: var(--background-color);
+}
+
+header,
+main {
+  max-width: 48em;
+  margin: 0 auto;
 }
 
 h1 {
@@ -38,17 +48,11 @@ h1 {
 
 h1 .accent {
   color: var(--header-accent-color);
-  background: linear-gradient(
-    315deg,
-    var(--header-accent-color),
-    var(--header-accent-color-secondary)
-  );
+  background: linear-gradient(315deg,
+      var(--header-accent-color),
+      var(--header-accent-color-secondary));
   background-clip: text;
   -webkit-text-fill-color: transparent;
-}
-
-p {
-  color: var(--body-text-color);
 }
 
 a {
@@ -59,10 +63,6 @@ a {
   &:hover {
     color: var(--header-accent-color-secondary);
   }
-}
-
-.bold {
-  font-weight: bold;
 }
 
 /* ==============================
@@ -157,18 +157,15 @@ form .labels label {
   transition: transform 0.2s;
 }
 
-.toggle input:checked + .slider {
+.toggle input:checked+.slider {
   background-color: var(--header-accent-color);
 }
 
-.toggle input:checked + .slider::after {
+.toggle input:checked+.slider::after {
   transform: translateX(1em);
 }
 
 @media (max-width: 640px) {
-  :root {
-    --body-padding: 1rem;
-  }
 
   input[type="text"],
   button,
@@ -191,7 +188,8 @@ form .labels label {
 /* ==============================
    Feed URLs
    ============================== */
-#result {
+#result,
+#error {
   margin-top: 2.5rem;
 }
 
@@ -204,7 +202,7 @@ form .labels label {
   font-size: 0.9em;
   background-color: var(--url-background-color);
   border-radius: 0.5rem;
-  padding: 0.5rem 0.75rem;
+  padding: 0.75rem 1rem;
   margin-top: 0.25rem;
   word-break: break-all;
 }
@@ -224,5 +222,59 @@ button.small {
 
   &:hover {
     background-color: #999;
+  }
+}
+
+/* ==============================
+   Promo
+   ============================== */
+.promo {
+  margin: 4rem auto 0 auto;
+  padding-top: 4rem;
+  max-width: 64rem;
+  border-top: 1px solid color-mix(in srgb, var(--background-color), black 10%);
+}
+
+.promo .showcase {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+
+  img {
+    width: 100%;
+  }
+}
+
+.promo .showcase-secondary {
+  margin-top: 2rem;
+
+  img {
+    max-width: 50rem;
+  }
+}
+
+.promo .copy {
+  max-width: 50rem;
+  margin: 2rem auto 0 auto;
+  font-size: 1.5em;
+  text-align: center;
+}
+
+@media (max-width: 640px) {
+
+  .hide-narrow {
+    display: none;
+  }
+
+  .promo .showcase img {
+    max-width: 12rem;
+  }
+
+  .promo .showcase-secondary img {
+    max-width: 20rem;
+  }
+
+  .promo .copy {
+    font-size: 1em;
   }
 }
