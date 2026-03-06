@@ -193,6 +193,10 @@ form .labels label {
   margin-top: 2.5rem;
 }
 
+#error {
+  text-align: center;
+}
+
 .feed {
   margin-bottom: 1.5rem;
 }
