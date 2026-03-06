@@ -19,22 +19,17 @@ function parseFeedOptions(c: {
 async function cachedResponse(
   request: Request,
   generate: () => Promise<Response>,
+  onCacheMiss?: () => void,
 ): Promise<Response> {
-  const url = new URL(request.url);
-  const noCache = url.searchParams.get("noCache") === "true";
+  const cache = caches.default;
+  const cached = await cache.match(request);
+  if (cached) return cached;
 
-  if (!noCache) {
-    const cache = caches.default;
-    const cached = await cache.match(request);
-    if (cached) return cached;
-
-    const response = await generate();
-    response.headers.set("Cache-Control", `public, max-age=${CACHE_TTL}`);
-    await cache.put(request, response.clone());
-    return response;
-  }
-
-  return generate();
+  const response = await generate();
+  onCacheMiss?.();
+  response.headers.set("Cache-Control", `public, max-age=${CACHE_TTL}`);
+  await cache.put(request, response.clone());
+  return response;
 }
 
 function mapAuthorFeedError(error: unknown): Response | null {
@@ -53,25 +48,35 @@ app.get("/:path{.+\\.xml$}", async (c) => {
     return c.text("Invalid DID", 400);
   }
 
-  return cachedResponse(c.req.raw, async () => {
-    const options = parseFeedOptions(c);
-    try {
-      const { posts, author } = await fetchAuthorFeed(did, options);
-      if (!author) {
-        return c.text("No posts found", 404);
-      }
+  return cachedResponse(
+    c.req.raw,
+    async () => {
+      const options = parseFeedOptions(c);
+      try {
+        const { posts, author } = await fetchAuthorFeed(did, options);
+        if (!author) {
+          return c.text("No posts found", 404);
+        }
 
-      const feedUrl = new URL(c.req.url).toString();
-      const xml = generateAtomFeed(did, posts, author, feedUrl);
-      return c.body(xml, 200, { "Content-Type": "application/atom+xml" });
-    } catch (error) {
-      const mapped = mapAuthorFeedError(error);
-      if (mapped) {
-        return mapped;
+        const feedUrl = new URL(c.req.url).toString();
+        const xml = generateAtomFeed(did, posts, author, feedUrl);
+        return c.body(xml, 200, { "Content-Type": "application/atom+xml" });
+      } catch (error) {
+        const mapped = mapAuthorFeedError(error);
+        if (mapped) {
+          return mapped;
+        }
+        throw error;
       }
-      throw error;
-    }
-  });
+    },
+    () => {
+      const colo = (c.req.raw.cf?.colo as string) ?? "unknown";
+      c.env.ANALYTICS.writeDataPoint({
+        blobs: [colo, did, "xml"],
+        indexes: [did],
+      });
+    },
+  );
 });
 
 app.get("/:path{.+\\.json$}", async (c) => {
@@ -80,25 +85,35 @@ app.get("/:path{.+\\.json$}", async (c) => {
     return c.text("Invalid DID", 400);
   }
 
-  return cachedResponse(c.req.raw, async () => {
-    const options = parseFeedOptions(c);
-    try {
-      const { posts, author } = await fetchAuthorFeed(did, options);
-      if (!author) {
-        return c.text("No posts found", 404);
-      }
+  return cachedResponse(
+    c.req.raw,
+    async () => {
+      const options = parseFeedOptions(c);
+      try {
+        const { posts, author } = await fetchAuthorFeed(did, options);
+        if (!author) {
+          return c.text("No posts found", 404);
+        }
 
-      const feedUrl = new URL(c.req.url).toString();
-      const feed = generateJsonFeed(did, posts, author, feedUrl);
-      return c.json(feed, 200, { "Content-Type": "application/feed+json" });
-    } catch (error) {
-      const mapped = mapAuthorFeedError(error);
-      if (mapped) {
-        return mapped;
+        const feedUrl = new URL(c.req.url).toString();
+        const feed = generateJsonFeed(did, posts, author, feedUrl);
+        return c.json(feed, 200, { "Content-Type": "application/feed+json" });
+      } catch (error) {
+        const mapped = mapAuthorFeedError(error);
+        if (mapped) {
+          return mapped;
+        }
+        throw error;
       }
-      throw error;
-    }
-  });
+    },
+    () => {
+      const colo = (c.req.raw.cf?.colo as string) ?? "unknown";
+      c.env.ANALYTICS.writeDataPoint({
+        blobs: [colo, did, "json"],
+        indexes: [did],
+      });
+    },
+  );
 });
 
 export default app;

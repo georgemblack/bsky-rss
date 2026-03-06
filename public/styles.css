@@ -48,9 +48,11 @@ h1 {
 
 h1 .accent {
   color: var(--header-accent-color);
-  background: linear-gradient(315deg,
-      var(--header-accent-color),
-      var(--header-accent-color-secondary));
+  background: linear-gradient(
+    315deg,
+    var(--header-accent-color),
+    var(--header-accent-color-secondary)
+  );
   background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -157,16 +159,15 @@ form .labels label {
   transition: transform 0.2s;
 }
 
-.toggle input:checked+.slider {
+.toggle input:checked + .slider {
   background-color: var(--header-accent-color);
 }
 
-.toggle input:checked+.slider::after {
+.toggle input:checked + .slider::after {
   transform: translateX(1em);
 }
 
 @media (max-width: 640px) {
-
   input[type="text"],
   button,
   form .labels {
@@ -265,7 +266,6 @@ button.small {
 }
 
 @media (max-width: 640px) {
-
   .hide-narrow {
     display: none;
   }

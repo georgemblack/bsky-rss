@@ -11,4 +11,10 @@
     "enabled": true,
   },
   "compatibility_flags": ["nodejs_compat"],
+  "analytics_engine_datasets": [
+    {
+      "binding": "ANALYTICS",
+      "dataset": "bsky_rss_feed_requests",
+    },
+  ],
 }
