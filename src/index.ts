@@ -16,17 +16,21 @@ function parseFeedOptions(c: {
   };
 }
 
+interface CacheMissContext {
+  handle?: string;
+}
+
 async function cachedResponse(
   request: Request,
-  generate: () => Promise<Response>,
-  onCacheMiss?: () => void,
+  generate: () => Promise<{ response: Response; context?: CacheMissContext }>,
+  onCacheMiss?: (context: CacheMissContext) => void,
 ): Promise<Response> {
   const cache = caches.default;
   const cached = await cache.match(request);
   if (cached) return cached;
 
-  const response = await generate();
-  onCacheMiss?.();
+  const { response, context } = await generate();
+  onCacheMiss?.(context ?? {});
   response.headers.set("Cache-Control", `public, max-age=${CACHE_TTL}`);
   await cache.put(request, response.clone());
   return response;
@@ -55,24 +59,29 @@ app.get("/:path{.+\\.xml$}", async (c) => {
       try {
         const { posts, author } = await fetchAuthorFeed(did, options);
         if (!author) {
-          return c.text("No posts found", 404);
+          return { response: c.text("No posts found", 404) };
         }
 
         const feedUrl = new URL(c.req.url).toString();
         const xml = generateAtomFeed(did, posts, author, feedUrl);
-        return c.body(xml, 200, { "Content-Type": "application/atom+xml" });
+        return {
+          response: c.body(xml, 200, {
+            "Content-Type": "application/atom+xml",
+          }),
+          context: { handle: author.handle },
+        };
       } catch (error) {
         const mapped = mapAuthorFeedError(error);
         if (mapped) {
-          return mapped;
+          return { response: mapped };
         }
         throw error;
       }
     },
-    () => {
+    ({ handle }) => {
       const colo = (c.req.raw.cf?.colo as string) ?? "unknown";
       c.env.ANALYTICS.writeDataPoint({
-        blobs: [colo, did, "xml"],
+        blobs: [colo, did, "xml", handle ?? ""],
         indexes: [did],
       });
     },
@@ -92,24 +101,29 @@ app.get("/:path{.+\\.json$}", async (c) => {
       try {
         const { posts, author } = await fetchAuthorFeed(did, options);
         if (!author) {
-          return c.text("No posts found", 404);
+          return { response: c.text("No posts found", 404) };
         }
 
         const feedUrl = new URL(c.req.url).toString();
         const feed = generateJsonFeed(did, posts, author, feedUrl);
-        return c.json(feed, 200, { "Content-Type": "application/feed+json" });
+        return {
+          response: c.json(feed, 200, {
+            "Content-Type": "application/feed+json",
+          }),
+          context: { handle: author.handle },
+        };
       } catch (error) {
         const mapped = mapAuthorFeedError(error);
         if (mapped) {
-          return mapped;
+          return { response: mapped };
         }
         throw error;
       }
     },
-    () => {
+    ({ handle }) => {
       const colo = (c.req.raw.cf?.colo as string) ?? "unknown";
       c.env.ANALYTICS.writeDataPoint({
-        blobs: [colo, did, "json"],
+        blobs: [colo, did, "json", handle ?? ""],
         indexes: [did],
       });
     },
