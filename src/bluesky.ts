@@ -47,8 +47,13 @@ export interface EmbedVideo {
 }
 
 export interface PostPart {
+  uri: string;
   text: string;
   facets?: Facet[];
+  images: EmbedImage[];
+  external?: ExternalLink;
+  video?: EmbedVideo;
+  quote?: QuotePost;
 }
 
 export interface QuotePost {
@@ -69,16 +74,16 @@ export interface Post {
   createdAt: string;
   updatedAt: string;
   replyParent?: ReplyParent;
-  images: EmbedImage[];
-  external?: ExternalLink;
-  video?: EmbedVideo;
-  quote?: QuotePost;
   author: Author;
 }
 
 interface EmbedView {
   $type: string;
   images?: Array<{
+    fullsize: string;
+    alt: string;
+  }>;
+  items?: Array<{
     fullsize: string;
     alt: string;
   }>;
@@ -160,17 +165,15 @@ export interface FeedOptions {
   includeReplies?: boolean;
 }
 
-/**
- * Groups consecutive thread posts into single entries.
- * Posts in a thread share the same root URI. The resulting post
- * uses the root's URI and earliest createdAt, with text concatenated.
- */
 function extractImages(embed?: EmbedView): EmbedImage[] {
   if (!embed) {
     return [];
   }
   if (embed.$type === "app.bsky.embed.recordWithMedia#view") {
     return extractImages(embed.media);
+  }
+  if (embed.$type === "app.bsky.embed.gallery#view" && embed.items) {
+    return embed.items.map((img) => ({ url: img.fullsize, alt: img.alt }));
   }
   if (embed.$type !== "app.bsky.embed.images#view" || !embed.images) {
     return [];
@@ -264,6 +267,12 @@ function extractVideo(embed?: EmbedView): EmbedVideo | undefined {
   };
 }
 
+/**
+ * Groups consecutive self-thread posts into a single entry.
+ * Posts in a thread share the same root URI. The resulting entry
+ * uses the root's URI and earliest createdAt; each post becomes a
+ * part carrying its own text and media, ordered chronologically.
+ */
 function collapseThreads(
   posts: Array<{
     uri: string;
@@ -282,10 +291,6 @@ function collapseThreads(
     {
       uri: string;
       parts: PostPart[];
-      images: EmbedImage[];
-      externals: ExternalLink[];
-      videos: EmbedVideo[];
-      quotes: QuotePost[];
       replyParent?: ReplyParent;
       createdAt: string;
       updatedAt: string;
@@ -297,16 +302,17 @@ function collapseThreads(
   for (const post of posts) {
     const key = post.rootUri;
     const part: PostPart = {
+      uri: post.uri,
       text: post.record.text,
       facets: post.record.facets,
+      images: post.images,
+      external: post.external,
+      video: post.video,
+      quote: post.quote,
     };
     const existing = groups.get(key);
     if (existing) {
       existing.parts.push(part);
-      existing.images.push(...post.images);
-      if (post.external) existing.externals.push(post.external);
-      if (post.video) existing.videos.push(post.video);
-      if (post.quote) existing.quotes.push(post.quote);
       if (post.record.createdAt < existing.createdAt) {
         existing.createdAt = post.record.createdAt;
         existing.replyParent = post.replyParent;
@@ -319,10 +325,6 @@ function collapseThreads(
       groups.set(key, {
         uri: post.rootUri,
         parts: [part],
-        images: [...post.images],
-        externals: post.external ? [post.external] : [],
-        videos: post.video ? [post.video] : [],
-        quotes: post.quote ? [post.quote] : [],
         replyParent: post.replyParent,
         createdAt: post.record.createdAt,
         updatedAt: post.record.createdAt,
@@ -341,10 +343,6 @@ function collapseThreads(
       createdAt: group.createdAt,
       updatedAt: group.updatedAt,
       replyParent: group.replyParent,
-      images: group.images,
-      external: group.externals[0],
-      video: group.videos[0],
-      quote: group.quotes[0],
       author: group.author,
     };
   });
