@@ -10,12 +10,12 @@
     "format": "prettier . --write"
   },
   "dependencies": {
-    "hono": "^4.12.32"
+    "hono": "^4.13.0"
   },
   "devDependencies": {
     "@types/node": "^26.1.2",
     "prettier": "^3.9.6",
     "typescript": "^7.0.2",
-    "wrangler": "^4.115.0"
+    "wrangler": "^4.119.0"
   }
 }
