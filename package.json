@@ -13,9 +13,9 @@
     "hono": "^4.13.5"
   },
   "devDependencies": {
-    "@types/node": "^26.3.0",
+    "@types/node": "^26.4.1",
     "prettier": "^3.9.6",
     "typescript": "^7.0.2",
-    "wrangler": "^4.126.0"
+    "wrangler": "^4.128.0"
   }
 }
