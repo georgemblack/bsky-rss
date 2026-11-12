@@ -48,7 +48,7 @@ function buildPartHtml(
     const q = part.quote;
     const quoteUrl = atUriToPostUrl(q.uri, q.author.handle);
     html += "<blockquote>";
-    html += `<a href="${escape(quoteUrl)}">${escape(q.author.displayName)} (@${escape(q.author.handle)})</a>`;
+    html += `<a href="${escape(quoteUrl)}">${escape(q.author.displayName || q.author.handle)} (@${escape(q.author.handle)})</a>`;
     html += `<p>${escape(q.text)}</p>`;
     html += "</blockquote>";
   }
@@ -63,7 +63,7 @@ export function buildContentHtml(
 ): string {
   let html = "";
   if (post.author.did !== feedAuthor.did) {
-    html += `<p>\u267B\uFE0F Reposted by ${escape(feedAuthor.displayName)}</p>`;
+    html += `<p>\u267B\uFE0F Reposted by ${escape(feedAuthor.displayName || feedAuthor.handle)}</p>`;
   }
   if (post.replyParent && post.author.did === feedAuthor.did) {
     const parentUrl = atUriToPostUrl(
