@@ -348,6 +348,35 @@ function collapseThreads(
   });
 }
 
+const MAX_FETCH_ATTEMPTS = 3;
+
+/**
+ * Fetches and parses the author feed. The Bluesky API occasionally
+ * returns a server error or a response that is cut off partway through,
+ * so those cases are retried. Client errors (e.g. unknown account) are
+ * not retried.
+ */
+async function fetchFeedJson(url: string): Promise<AuthorFeedResponse> {
+  let lastError: unknown;
+  for (let attempt = 1; attempt <= MAX_FETCH_ATTEMPTS; attempt++) {
+    try {
+      const res = await fetch(url);
+      if (res.status >= 400 && res.status < 500) {
+        throw new BlueskyApiError(res.status);
+      }
+      if (!res.ok) {
+        lastError = new BlueskyApiError(res.status);
+        continue;
+      }
+      return (await res.json()) as AuthorFeedResponse;
+    } catch (error) {
+      if (error instanceof BlueskyApiError) throw error;
+      lastError = error;
+    }
+  }
+  throw lastError;
+}
+
 export async function fetchAuthorFeed(
   did: string,
   options: FeedOptions = {},
@@ -360,13 +389,7 @@ export async function fetchAuthorFeed(
     ? "posts_with_replies"
     : "posts_and_author_threads";
   const url = `${BSKY_API}/app.bsky.feed.getAuthorFeed?actor=${encodeURIComponent(did)}&filter=${filter}`;
-  const res = await fetch(url);
-
-  if (!res.ok) {
-    throw new BlueskyApiError(res.status);
-  }
-
-  const data = (await res.json()) as AuthorFeedResponse;
+  const data = await fetchFeedJson(url);
   const author =
     data.feed.find((item) => item.post.author.did === did)?.post.author ??
     data.feed.find((item) => item.reason?.by.did === did)?.reason?.by ??
