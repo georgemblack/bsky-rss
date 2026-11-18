@@ -1,6 +1,7 @@
 {
   "name": "bsky-rss",
   "type": "module",
+  "packageManager": "pnpm@11.24.0",
   "scripts": {
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
